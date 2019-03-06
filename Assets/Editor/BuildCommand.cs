@@ -116,7 +116,15 @@ static class BuildCommand
 		var buildName = GetBuildName ();
 		var fixedBuildPath = GetFixedBuildPath (buildTarget, buildPath, buildName);
 
-		BuildPipeline.BuildPlayer (GetEnabledScenes (), fixedBuildPath, buildTarget, GetBuildOptions ());
-		Console.WriteLine (":: Done with build");
+		string error = BuildPipeline.BuildPlayer (GetEnabledScenes (), fixedBuildPath, buildTarget, GetBuildOptions ());
+		if( string.IsNullOrEmpty( error ) ) {
+			Console.WriteLine (":: Done with build");
+    		EditorApplication.Exit( 0 );
+		}
+		else {
+			Console.WriteLine (":: Error");
+			Console.WriteLine (error);
+    		EditorApplication.Exit( 1 );
+		}
 	}
 }
