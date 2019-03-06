@@ -1,4 +1,5 @@
 ﻿using UnityEditor;
+using UnityEditor.Build.Reporting;
 using System.Linq;
 using System;
 
@@ -116,14 +117,17 @@ static class BuildCommand
 		var buildName = GetBuildName ();
 		var fixedBuildPath = GetFixedBuildPath (buildTarget, buildPath, buildName);
 
-		string error = BuildPipeline.BuildPlayer (GetEnabledScenes (), fixedBuildPath, buildTarget, GetBuildOptions ());
-		if( string.IsNullOrEmpty( error ) ) {
+		var buildInfo = BuildPipeline.BuildPlayer (GetEnabledScenes (), fixedBuildPath, buildTarget, GetBuildOptions ());
+		if( buildInfo.summary.result == BuildResult.Succeeded ) {
 			Console.WriteLine (":: Done with build");
-    		EditorApplication.Exit( 0 );
 		}
 		else {
-			Console.WriteLine (":: Error");
-			Console.WriteLine (error);
+			Console.WriteLine (":: Build error");
+            foreach (var step in buildInfo.steps) {
+                foreach (var message in step.messages) {
+			        Console.WriteLine (step.name + " -- " + message.content);
+                }
+            }
     		EditorApplication.Exit( 1 );
 		}
 	}
